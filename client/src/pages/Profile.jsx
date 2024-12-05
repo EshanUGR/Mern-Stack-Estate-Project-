@@ -1,17 +1,21 @@
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 
+
 import { updateUserFailure,updateUserStart,updateUserSuccess } from '../redux/user/userSlice.js';
 import { useDispatch } from 'react-redux';
 const Profile = () => {
-  
-  const {currentUser}=useSelector((state)=>state.user);
+  const [updateSuccess,setUpdateSuccess]=useState(false);
+
+  const {currentUser,loading,error}=useSelector((state)=>state.user);
 
   const [formData,setFormData]=useState({});
+  
+  
 const dispatch=useDispatch();
   const handleChange=(e)=>
   {
-    setFormData({...FormData,[e.target.id]:e.target.value})
+    setFormData({...formData,[e.target.id]:e.target.value})
   }
 
   const handleSubmit=async(e)=>
@@ -19,12 +23,12 @@ const dispatch=useDispatch();
     e.preventDefault();
 try{
   dispatch(updateUserStart());
-  const res=await fetch(`/api/user/update/${currentUser._id}`,{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
+  const res = await fetch(`/api/user/update/${currentUser._id}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
     },
-    body:JSON.stringify(formData),
+    body: JSON.stringify(formData),
   });
   const data=await res.json();
   if(data.success===false)
@@ -33,6 +37,7 @@ try{
     return;
   }
   dispatch(updateUserSuccess(data));
+  setUpdateSuccess(true);
 }
 
 catch(error)
@@ -77,14 +82,16 @@ catch(error)
           onChange={handleChange}
         />
 
-        <button className="p-3 text-white uppercase rounded-lg bg-slate-700 hover:opacity-80">
-          Update
+        <button className="p-3 text-white uppercase rounded-lg bg-slate-700 hover:opacity-80" disabled={loading}>
+         {loading?'loading':'Update'}
         </button>
       </form>
       <div className="flex justify-between mt-5">
         <span className="text-red-700 cursor-pointer">Delete Account</span>
         <span className="text-red-700 cursor-pointer">Sign Out</span>
       </div>
+      <p className='mt-5 text-red-700'>{error ?error:''}</p>
+      <p className='mt-5 text-green-700'>{updateSuccess?'User Updated successfully':''}</p>
     </div>
   );
 }
