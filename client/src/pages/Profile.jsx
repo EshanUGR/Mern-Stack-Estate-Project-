@@ -1,93 +1,84 @@
-import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
-
-import { updateUserFailure,updateUserStart,updateUserSuccess,deleteUserFailure,deleteUserStart,deleteUserSuccess,signOutUserFailure,signOutUserStart,signOutUserSuccess } from '../redux/user/userSlice.js';
-import { useDispatch } from 'react-redux';
+import {
+  updateUserFailure,
+  updateUserStart,
+  updateUserSuccess,
+  deleteUserFailure,
+  deleteUserStart,
+  deleteUserSuccess,
+  signOutUserFailure,
+  signOutUserStart,
+  signOutUserSuccess,
+} from "../redux/user/userSlice.js";
+import { useDispatch } from "react-redux";
 const Profile = () => {
-  const [updateSuccess,setUpdateSuccess]=useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
 
-  const {currentUser,loading,error}=useSelector((state)=>state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
 
-  const [formData,setFormData]=useState({});
-  
-  
-const dispatch=useDispatch();
-  const handleChange=(e)=>
-  {
-    setFormData({...formData,[e.target.id]:e.target.value})
-  }
+  const [formData, setFormData] = useState({});
 
-  const handleSubmit=async(e)=>
-  {
-    e.preventDefault();
-try{
-  dispatch(updateUserStart());
-  const res = await fetch(`/api/user/update/${currentUser._id}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(formData),
-  });
-  const data=await res.json();
-  if(data.success===false)
-  {
-    dispatch(updateUserFailure(data.message));
-    return;
-  }
-  dispatch(updateUserSuccess(data));
-  setUpdateSuccess(true);
-}
-
-catch(error)
-{
-  dispatch(updateUserFailure(error.message));
-}
-
-    
+  const dispatch = useDispatch();
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
   };
-  const handleDeleteUser=async()=>
-  {
-    try{
-      dispatch(deleteUserStart());
-      const res=await fetch(`/api/user/delete/${currentUser._id}`,{
-        method:'DELETE'
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch(updateUserStart());
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
-const data=await res.json();
-if(data.success===false)
-{
-  dispatch(deleteUserFailure(data.message));
-  return;
-}
-dispatch(deleteUserSuccess(data));
-      
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(updateUserFailure(data.message));
+        return;
+      }
+      dispatch(updateUserSuccess(data));
+      setUpdateSuccess(true);
+    } catch (error) {
+      dispatch(updateUserFailure(error.message));
     }
-    catch(error)
-    {
+  };
+  const handleDeleteUser = async () => {
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
       dispatch(deleteUserFailure(error.message));
     }
-    
-  }
+  };
 
-  const handleSignOut=async()=>
-  {
-    try{
+  const handleSignOut = async () => {
+    try {
       dispatch(signOutUserStart());
-      const res=await fetch('/api/auth/signout');
-      const data=await res.json();
-      if(data.success===false)
-      {
+      const res = await fetch("/api/auth/signout");
+      const data = await res.json();
+      if (data.success === false) {
         dispatch(signOutUserFailure(data.message));
         return;
       }
       dispatch(signOutUserSuccess(data));
-    }
-    catch(error)
-    {
+    } catch (error) {
       dispatch(signOutUserFailure(data.message));
     }
-  }
+  };
   return (
     <div className="max-w-lg p-3 mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
@@ -123,18 +114,34 @@ dispatch(deleteUserSuccess(data));
           onChange={handleChange}
         />
 
-        <button className="p-3 text-white uppercase rounded-lg bg-slate-700 hover:opacity-80" disabled={loading}>
-         {loading?'loading':'Update'}
+        <button
+          className="p-3 text-white uppercase rounded-lg bg-slate-700 hover:opacity-80"
+          disabled={loading}
+        >
+          {loading ? "loading" : "Update"}
         </button>
+
+        <Link to={"/create-listing"} className="p-3 text-center text-white uppercase bg-green-700 rounded-lg hover:opacity-95">
+          Create Listing
+        </Link>
       </form>
       <div className="flex justify-between mt-5">
-        <span className="text-red-700 cursor-pointer" onClick={handleDeleteUser}>Delete Account</span>
-        <span className="text-red-700 cursor-pointer" onClick={handleSignOut}>Sign Out</span>
+        <span
+          className="text-red-700 cursor-pointer"
+          onClick={handleDeleteUser}
+        >
+          Delete Account
+        </span>
+        <span className="text-red-700 cursor-pointer" onClick={handleSignOut}>
+          Sign Out
+        </span>
       </div>
-      <p className='mt-5 text-red-700'>{error ?error:''}</p>
-      <p className='mt-5 text-green-700'>{updateSuccess?'User Updated successfully':''}</p>
+      <p className="mt-5 text-red-700">{error ? error : ""}</p>
+      <p className="mt-5 text-green-700">
+        {updateSuccess ? "User Updated successfully" : ""}
+      </p>
     </div>
   );
-}
+};
 
-export default Profile
+export default Profile;
