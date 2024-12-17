@@ -1,6 +1,8 @@
 import { errorHandler } from "../utils/error.js";
 import User from "../models/user.model.js";
+import Listing from '../models/Listing.model.js'
 import bcryptjs from 'bcryptjs'
+import { List } from "dom";
 export const test = (req, res) => {
   res.json({
     message: "api route is working",
@@ -53,3 +55,27 @@ catch(error)
 }
 
 }
+
+export const getUserListings = async (req, res, next) => {
+  // Check if the user is trying to access their own listings
+  if (req.user.id === req.params.id) {
+    try {
+      // Fetch listings from the database
+      const listings = await Listing.find({ userRef: req.params.id });
+
+      // Check if there are no listings
+      if (!listings) {
+        return res.status(404).json({ message: "No listings found" });
+      }
+
+      // Send the listings as a response
+      return res.status(200).json(listings);
+    } catch (error) {
+      // Handle errors during database operation
+      return next(error); // Pass the error to the error handling middleware
+    }
+  } else {
+    // If the user tries to view someone else's listings, send an error
+    return next(errorHandler(401, "You can only view your own listings!"));
+  }
+};
