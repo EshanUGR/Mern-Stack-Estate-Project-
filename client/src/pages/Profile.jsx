@@ -20,8 +20,11 @@ const Profile = () => {
   const { currentUser, loading, error } = useSelector((state) => state.user);
 
   const [formData, setFormData] = useState({});
-
+const[showListingsError,setShwoListingsError]=useState(false);
+const[userListings,setUserListings]=useState([]);
+console.log(userListings)
   const dispatch = useDispatch();
+  
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
@@ -79,6 +82,30 @@ const Profile = () => {
       dispatch(signOutUserFailure(data.message));
     }
   };
+
+
+  const handleShowListings=async(e)=>
+  {
+
+    try{
+      setShwoListingsError(false);
+      const res=await fetch(`/api/user/listings/${currentUser._id}`);
+      const data=await res.json();
+
+      if(data.success===false)
+      {
+       setShwoListingsError(true);
+       return; 
+      }
+
+      setUserListings(data);
+    }
+    catch(error)
+    {
+      setShwoListingsError(true);
+    }
+    
+  }
   return (
     <div className="max-w-lg p-3 mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
@@ -121,7 +148,10 @@ const Profile = () => {
           {loading ? "loading" : "Update"}
         </button>
 
-        <Link to={"/create-listing"} className="p-3 text-center text-white uppercase bg-green-700 rounded-lg hover:opacity-95">
+        <Link
+          to={"/create-listing"}
+          className="p-3 text-center text-white uppercase bg-green-700 rounded-lg hover:opacity-95"
+        >
           Create Listing
         </Link>
       </form>
@@ -140,6 +170,37 @@ const Profile = () => {
       <p className="mt-5 text-green-700">
         {updateSuccess ? "User Updated successfully" : ""}
       </p>
+      <button className="w-full text-green-700" onClick={handleShowListings}>
+        Show Listing
+      </button>
+
+      <p className="mt-5 text-red-700">
+        {showListingsError ? "Error Showing listing" : ""}
+      </p>
+
+      {userListings && userListings.length > 0 ? (
+        <div className="flex flex-col gap-4">
+          <h1 className='text-2xl font-semibold text-center mt-7'>Your  Listings</h1>
+          {userListings.map((listing) => (
+            <div
+              key={listing._id}
+              className="flex items-center justify-between gap-4 p-3 font-semibold truncate border rounded-lg text-slate-700 hover:underline"
+            >
+              <Link to={`/listings/${listing._id}`} className="flex-1">
+                <p className="font-semibold truncate text-slate-700 hover:underline">
+                  {listing.name}
+                </p>
+              </Link>
+              <div className="flex flex-col items-center">
+                <button className="text-red-700 uppercase">Delete</button>
+                <button className="text-green-700 uppercase">Edit</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p>No listings available</p>
+      )}
     </div>
   );
 };
