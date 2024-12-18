@@ -206,7 +206,9 @@ catch(error)
 
       {userListings && userListings.length > 0 ? (
         <div className="flex flex-col gap-4">
-          <h1 className='text-2xl font-semibold text-center mt-7'>Your  Listings</h1>
+          <h1 className="text-2xl font-semibold text-center mt-7">
+            Your Listings
+          </h1>
           {userListings.map((listing) => (
             <div
               key={listing._id}
@@ -218,8 +220,15 @@ catch(error)
                 </p>
               </Link>
               <div className="flex flex-col items-center">
-                <button className="text-red-700 uppercase" onClick={()=>handleListingDelete(listing._id)}>Delete</button>
-                <button className="text-green-700 uppercase">Edit</button>
+                <button
+                  className="text-red-700 uppercase"
+                  onClick={() => handleListingDelete(listing._id)}
+                >
+                  Delete
+                </button>
+                <Link to={`/update-listing/${listing._id}`}>
+                  <button className="text-green-700 uppercase">Edit</button>
+                </Link>
               </div>
             </div>
           ))}
