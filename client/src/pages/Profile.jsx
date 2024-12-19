@@ -20,11 +20,11 @@ const Profile = () => {
   const { currentUser, loading, error } = useSelector((state) => state.user);
 
   const [formData, setFormData] = useState({});
-const[showListingsError,setShwoListingsError]=useState(false);
-const[userListings,setUserListings]=useState([]);
-console.log(userListings)
+  const [showListingsError, setShwoListingsError] = useState(false);
+  const [userListings, setUserListings] = useState([]);
+  console.log(userListings);
   const dispatch = useDispatch();
-  
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
@@ -83,55 +83,40 @@ console.log(userListings)
     }
   };
 
-
-  const handleShowListings=async(e)=>
-  {
-
-    try{
+  const handleShowListings = async (e) => {
+    try {
       setShwoListingsError(false);
-      const res=await fetch(`/api/user/listings/${currentUser._id}`);
-      const data=await res.json();
+      const res = await fetch(`/api/user/listings/${currentUser._id}`);
+      const data = await res.json();
 
-      if(data.success===false)
-      {
-       setShwoListingsError(true);
-       return; 
+      if (data.success === false) {
+        setShwoListingsError(true);
+        return;
       }
 
       setUserListings(data);
-    }
-    catch(error)
-    {
+    } catch (error) {
       setShwoListingsError(true);
     }
-    
   };
 
-  const handleListingDelete=async(listingId)=>
-  {
-try{
-  const res = await fetch(
-    `/api/listing/delete/${listingId}`,{
-
-      method:'DELETE'
+  const handleListingDelete = async (listingId) => {
+    try {
+      const res = await fetch(`/api/listing/delete/${listingId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        console.log(data.message);
+        return;
+      }
+      setUserListings((prev) =>
+        prev.filter((listing) => listing._id === listingId)
+      );
+    } catch (error) {
+      console.log(error.message);
     }
-  );
-  const data=await res.json();
-if(data.success===false)
-{
-  console.log(data.message);
-  return;
-}
-  setUserListings((prev)=>prev.filter((listing)=>listing._id===listingId));
-  
-  
-}
-catch(error)
-{
-  console.log(error.message);
-}
-    
-  }
+  };
   return (
     <div className="max-w-lg p-3 mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
@@ -214,7 +199,7 @@ catch(error)
               key={listing._id}
               className="flex items-center justify-between gap-4 p-3 font-semibold truncate border rounded-lg text-slate-700 hover:underline"
             >
-              <Link to={`/listings/${listing._id}`} className="flex-1">
+              <Link to={`/listing/${listing._id}`} className="flex-1">
                 <p className="font-semibold truncate text-slate-700 hover:underline">
                   {listing.name}
                 </p>
