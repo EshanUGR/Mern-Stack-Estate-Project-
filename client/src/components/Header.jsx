@@ -1,9 +1,31 @@
-import React from 'react'
-import {FaSearch} from 'react-icons/fa';
-import {Link} from 'react-router-dom'
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect } from "react";
+import { FaSearch } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 const Header = () => {
-  const {currentUser}=useSelector(state=>state.user);
+  const { currentUser } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+  const [ searchTerm, setSearchTerm ] = useState("");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    urlParams.set("searchTerm", searchTerm);
+    const searchQuery = urlParams.toString();
+
+    navigate(`/search?${searchQuery}`);
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchTermFromUrl = urlParams.get("searchTerm");
+
+    if (searchTermFromUrl) {
+      setSearchTerm(searchTermFromUrl);
+    }
+  }, [location.search]);
+
   return (
     <header className="p-3 shadow-md bg-slate-200 ">
       <div className="flex items-center justify-between max-w-6xl mx-auto">
@@ -13,13 +35,19 @@ const Header = () => {
             <span className="text-slate-700">Estate</span>
           </h1>
         </Link>
-        <form className="flex items-center p-3 rounded-lg bg-slate-100">
+        <form
+          className="flex items-center p-3 rounded-lg bg-slate-100"
+          onSubmit={handleSubmit}
+        >
           <input
             type="text"
             placeholder="Search..."
             className="w-24 bg-transparent focus:outline-none sm:w-64 "
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <FaSearch />
+          <button>
+            <FaSearch />
+          </button>
         </form>
         <ul className="flex gap-4">
           <Link to="/">
@@ -34,7 +62,11 @@ const Header = () => {
           </Link>
           <Link to="/profile">
             {currentUser ? (
-              <img src={currentUser.avatar} alt="profile" className='object-cover rounded-full h-7 w-7' />
+              <img
+                src={currentUser.avatar}
+                alt="profile"
+                className="object-cover rounded-full h-7 w-7"
+              />
             ) : (
               <li className="text-slate-700 hover:underline">Sign in</li>
             )}
@@ -43,6 +75,6 @@ const Header = () => {
       </div>
     </header>
   );
-}
+};
 
-export default Header
+export default Header;
